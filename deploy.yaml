@@ -8,7 +8,11 @@ spec:
     matchLabels:
       app: cicd
   template:
-    containers:
-      - name: ci
-        image: nginx
+    metadata:
+      labels:
+        app: cicd
+    spec:
+      containers:
+        - name: ci
+          image: nginx
 

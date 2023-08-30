@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: ci
-          image: nginx:1.16
+          image: nginx
 ---
 apiVersion: v1
 kind: Service

@@ -1,4 +1,4 @@
-name: Test CI/CD
+name: Spark CI/CD
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
     steps:
     
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
     - name: Copy custom code
       run: |
@@ -21,28 +21,37 @@ jobs:
         cp -r custom_folder/* src/
         ls -la src/
         ls -la
-  
-  build-docker-image:
-    needs: build  # <--- this tells that previous step(name "build") should be done before this ont
+  test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
     
-    - name: Checkout
-      uses: actions/checkout@v3
+    - name: Set up Spark environment
+      run: |
+        # Install Spark and dependencies here
+        # You can use Apache Spark's official Docker image or install it manually
+        ##docker images
+        ##docker pull apache/spark
+        ##docker images
+        # Example: Download and install Spark manually
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_PASSWD }}
-        #password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build and push
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/argo-web:latest
+    - name: Build and test Spark app
+      run: |
+        # Build and test your Spark application here
+        # Example: sbt clean package
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Deploy to ArgoCD
+      run: |
+        # Use ArgoCD CLI or API to trigger deployment
+        # Example: argocd app sync my-spark-app
+        curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+        sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+        rm argocd-linux-amd64
+        argocd login 54.226.25.98:31218 --username admin --password SojWh5-NBGRCy69G --insecure
+        argocd app list
+        argocd app sync apache-spark
   
